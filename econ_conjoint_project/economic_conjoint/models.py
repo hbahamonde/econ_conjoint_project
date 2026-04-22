@@ -11,7 +11,8 @@ Toy economic conjoint:
 - left/right randomized
 - hidden expandable info
 - one timed task and one untimed task
-- subjects guess who got more votes
+- subjects guess who got the higher vote share
+- immediate feedback on the same page
 """
 
 
@@ -32,12 +33,27 @@ def load_candidate_data():
         reader = csv.DictReader(f)
         for row in reader:
             candidate_id = str(row['ID']).strip()
+            vote_share_raw = row.get('porcentajedevotos', '') or '0'
+            try:
+                vote_share = float(str(vote_share_raw).replace(',', '.'))
+            except:
+                vote_share = 0.0
+
+            votes_raw = row.get('Votos', '0') or '0'
+            try:
+                votes = int(float(votes_raw))
+            except:
+                votes = 0
+
             rows[candidate_id] = {
                 'id': candidate_id,
                 'party': row.get('PARTIDO', '').strip(),
                 'ideology': row.get('ideologia_cat', '').strip(),
                 'age': row.get('age', '').strip() or row.get('EDAD', '').strip(),
-                'votes': int(float(row.get('Votos', 0) or 0)),
+                'votes': votes,
+                'vote_share': vote_share,
+                'municipality': row.get('MUNICIPIO', '').strip(),
+                'year': row.get('year', '').strip() or row.get('year2', '').strip(),
             }
     return rows
 
@@ -52,6 +68,10 @@ class Constants(BaseConstants):
 
     base_points = 100
     time_penalty_per_second = 2
+    info_click_cost = 5
+
+    # safer default for cross-municipality toy pairing
+    compare_metric = 'vote_share'
 
     toy_pairs = [
         ('110108', '113701'),
@@ -95,6 +115,8 @@ class Player(BasePlayer):
 
     time_spent_seconds = models.FloatField(initial=0)
 
+    info_cost_spent = models.IntegerField(initial=0)
+
     correct = models.BooleanField(initial=False)
     points_earned = models.IntegerField(initial=0)
 
@@ -132,4 +154,20 @@ def candidate_payload(candidate_id):
         ideology=row['ideology'],
         age=row['age'],
         votes=row['votes'],
+        vote_share=row['vote_share'],
+        municipality=row['municipality'],
+        year=row['year'],
     )
+
+
+def get_metric_value(candidate_id):
+    row = CANDIDATE_DATA[candidate_id]
+    if Constants.compare_metric == 'vote_share':
+        return row['vote_share']
+    return row['votes']
+
+
+def get_metric_label():
+    if Constants.compare_metric == 'vote_share':
+        return 'vote share'
+    return 'votes'

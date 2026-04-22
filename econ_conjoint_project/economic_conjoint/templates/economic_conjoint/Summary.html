@@ -6,6 +6,7 @@ Summary
 
 <p><strong>Total points earned:</strong> {{ total_points }}</p>
 <p><strong>Timed task:</strong> Task {{ timed_round }}</p>
+<p><strong>Comparison metric:</strong> {{ metric_label }}</p>
 
 <table class="table">
     <thead>
@@ -13,6 +14,7 @@ Summary
             <th>Task</th>
             <th>Timed?</th>
             <th>Time spent</th>
+            <th>Info cost spent</th>
             <th>Correct?</th>
             <th>Points</th>
         </tr>
@@ -23,6 +25,7 @@ Summary
             <td>{{ p.round_number }}</td>
             <td>{{ p.timed_task }}</td>
             <td>{{ p.time_spent_seconds }}</td>
+            <td>{{ p.info_cost_spent }}</td>
             <td>{{ p.correct }}</td>
             <td>{{ p.points_earned }}</td>
         </tr>
