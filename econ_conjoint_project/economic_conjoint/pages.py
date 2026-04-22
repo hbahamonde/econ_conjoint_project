@@ -94,9 +94,8 @@ class Summary(Page):
         return dict(
             rounds=rounds,
             total_points=self.player.participant.vars.get('economic_conjoint_points', 0),
-            timed_round=self.player.participant.vars.get('timed_round'),
+            timed_tasks=self.player.participant.vars.get('timed_tasks', []),
             metric_label=get_metric_label(),
         )
-
 
 page_sequence = [Intro, Task, Summary]

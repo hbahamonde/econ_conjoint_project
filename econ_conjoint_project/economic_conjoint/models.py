@@ -7,6 +7,7 @@ from pathlib import Path
 doc = """
 Toy economic conjoint:
 - 2 tasks
+- candidates drawn from one common pool
 - 2 candidate photos per task
 - left/right randomized
 - hidden expandable info
@@ -33,6 +34,7 @@ def load_candidate_data():
         reader = csv.DictReader(f)
         for row in reader:
             candidate_id = str(row['ID']).strip()
+
             vote_share_raw = row.get('porcentajedevotos', '') or '0'
             try:
                 vote_share = float(str(vote_share_raw).replace(',', '.'))
@@ -61,6 +63,30 @@ def load_candidate_data():
 CANDIDATE_DATA = load_candidate_data()
 
 
+def available_candidate_ids():
+    image_dir = (
+        Path(__file__).resolve().parent.parent
+        / '_static'
+        / 'economic_conjoint'
+        / 'images'
+    )
+
+    available = []
+    for candidate_id, row in CANDIDATE_DATA.items():
+        image_path = image_dir / f'{candidate_id}.jpg'
+
+        # keep only candidates with an image and non-missing core variables
+        if (
+            image_path.exists()
+            and row['party'] != ''
+            and row['ideology'] != ''
+            and row['age'] != ''
+        ):
+            available.append(candidate_id)
+
+    return available
+
+
 class Constants(BaseConstants):
     name_in_url = 'economic_conjoint'
     players_per_group = None
@@ -70,17 +96,24 @@ class Constants(BaseConstants):
     time_penalty_per_second = 2
     info_click_cost = 5
 
-    # safer default for cross-municipality toy pairing
     compare_metric = 'vote_share'
-
-    toy_pairs = [
-        ('110108', '113701'),
-        ('110702', '119102'),
-    ]
-
+    timer_probability = 0.5
 
 class Subsession(BaseSubsession):
     pass
+
+
+def draw_candidates_for_game():
+    candidate_pool = available_candidate_ids()
+    needed = 2 * Constants.num_rounds
+
+    if len(candidate_pool) < needed:
+        raise ValueError(
+            f'Not enough eligible candidates with images and metadata. '
+            f'Need at least {needed}, found {len(candidate_pool)}.'
+        )
+
+    return random.sample(candidate_pool, needed)
 
 
 def creating_session(subsession):
@@ -88,14 +121,14 @@ def creating_session(subsession):
         return
 
     for player in subsession.get_players():
-        if 'timed_round' not in player.participant.vars:
-            player.participant.vars['timed_round'] = random.choice([1, 2])
+        if 'timed_tasks' not in player.participant.vars:
+            player.participant.vars['timed_tasks'] = [
+                random.random() < Constants.timer_probability
+                for _ in range(Constants.num_rounds)
+            ]
 
-        if 'pair_order' not in player.participant.vars:
-            pair_order = Constants.toy_pairs.copy()
-            random.shuffle(pair_order)
-            player.participant.vars['pair_order'] = pair_order
-
+        if 'drawn_candidates' not in player.participant.vars:
+            player.participant.vars['drawn_candidates'] = draw_candidates_for_game()
 
 class Group(BaseGroup):
     pass
@@ -122,28 +155,39 @@ class Player(BasePlayer):
 
 
 def ensure_randomization(player):
-    if 'timed_round' not in player.participant.vars:
-        player.participant.vars['timed_round'] = random.choice([1, 2])
+    if 'timed_tasks' not in player.participant.vars:
+        player.participant.vars['timed_tasks'] = [
+            random.random() < Constants.timer_probability
+            for _ in range(Constants.num_rounds)
+        ]
 
-    if 'pair_order' not in player.participant.vars:
-        pair_order = Constants.toy_pairs.copy()
-        random.shuffle(pair_order)
-        player.participant.vars['pair_order'] = pair_order
+    if 'drawn_candidates' not in player.participant.vars:
+        player.participant.vars['drawn_candidates'] = draw_candidates_for_game()
 
-
-def get_pair_for_round(player):
+def get_candidates_for_round(player):
     ensure_randomization(player)
-    pair_order = player.participant.vars['pair_order']
-    return pair_order[player.round_number - 1]
+
+    drawn = player.participant.vars['drawn_candidates']
+    start_idx = (player.round_number - 1) * 2
+    end_idx = start_idx + 2
+
+    round_candidates = drawn[start_idx:end_idx]
+
+    if len(round_candidates) != 2:
+        raise ValueError(
+            f'Round {player.round_number} does not have exactly 2 candidates assigned.'
+        )
+
+    return round_candidates
 
 
 def assign_positions(player):
-    pair = get_pair_for_round(player)
-    shuffled = random.sample(list(pair), 2)
+    round_candidates = get_candidates_for_round(player)
+    shuffled = random.sample(list(round_candidates), 2)
+
     player.left_candidate_id = shuffled[0]
     player.right_candidate_id = shuffled[1]
-    player.timed_task = (player.round_number == player.participant.vars['timed_round'])
-
+    player.timed_task = player.participant.vars['timed_tasks'][player.round_number - 1]
 
 def candidate_payload(candidate_id):
     row = CANDIDATE_DATA[candidate_id]
