@@ -1,7 +1,7 @@
 from otree.api import Page
 from .models import (
     Constants, Subsession, Group, Player,
-    assign_positions, candidate_payload, CANDIDATE_DATA,
+    assign_positions, candidate_payload,
     get_metric_value, get_metric_label
 )
 
@@ -9,6 +9,16 @@ from .models import (
 class Intro(Page):
     def is_displayed(self):
         return self.round_number == 1
+
+    def vars_for_template(self):
+        return dict(
+            initial_endowment=self.player.participant.vars.get('initial_endowment', Constants.initial_endowment),
+            current_balance=self.player.participant.vars.get('point_balance', Constants.initial_endowment),
+            correct_payoff=Constants.correct_payoff,
+            incorrect_payoff=Constants.incorrect_payoff,
+            info_click_cost=Constants.info_click_cost,
+            time_penalty_per_second=Constants.time_penalty_per_second,
+        )
 
 
 class Task(Page):
@@ -46,13 +56,15 @@ class Task(Page):
             left_candidate=left,
             right_candidate=right,
             timed_task=self.player.timed_task,
-            base_points=Constants.base_points,
-            time_penalty=Constants.time_penalty_per_second,
             info_click_cost=Constants.info_click_cost,
             metric_label=get_metric_label(),
             winner_side=winner_side,
             winner_id=winner_id,
             winner_metric=winner_metric,
+            current_balance=self.player.participant.vars.get('point_balance', Constants.initial_endowment),
+            correct_payoff=Constants.correct_payoff,
+            incorrect_payoff=Constants.incorrect_payoff,
+            time_penalty_per_second=Constants.time_penalty_per_second,
         )
 
     def error_message(self, values):
@@ -70,19 +82,32 @@ class Task(Page):
 
         self.player.correct = (self.player.decision_candidate_id == winning_id)
 
-        gross_points = 0
         if self.player.correct:
-            if self.player.timed_task:
-                penalty = int(self.player.time_spent_seconds * Constants.time_penalty_per_second)
-                gross_points = max(0, Constants.base_points - penalty)
-            else:
-                gross_points = Constants.base_points
+            self.player.accuracy_payoff = Constants.correct_payoff
+        else:
+            self.player.accuracy_payoff = Constants.incorrect_payoff
 
-        net_points = max(0, gross_points - self.player.info_cost_spent)
-        self.player.points_earned = net_points
+        if self.player.correct and self.player.timed_task:
+            self.player.time_penalty_applied = int(
+                self.player.time_spent_seconds * Constants.time_penalty_per_second
+            )
+        else:
+            self.player.time_penalty_applied = 0
 
-        total_points = self.player.participant.vars.get('economic_conjoint_points', 0)
-        self.player.participant.vars['economic_conjoint_points'] = total_points + self.player.points_earned
+        self.player.task_net_change = (
+            self.player.accuracy_payoff
+            - self.player.time_penalty_applied
+            - self.player.info_cost_spent
+        )
+
+        old_balance = self.player.participant.vars.get('point_balance', Constants.initial_endowment)
+        new_balance = max(0, old_balance + self.player.task_net_change)
+
+        self.player.balance_after_task = new_balance
+        self.player.participant.vars['point_balance'] = new_balance
+
+        # keep this for compatibility with your earlier summary logic
+        self.player.points_earned = self.player.task_net_change
 
 
 class Summary(Page):
@@ -93,9 +118,11 @@ class Summary(Page):
         rounds = self.player.in_all_rounds()
         return dict(
             rounds=rounds,
-            total_points=self.player.participant.vars.get('economic_conjoint_points', 0),
+            initial_endowment=self.player.participant.vars.get('initial_endowment', Constants.initial_endowment),
+            final_balance=self.player.participant.vars.get('point_balance', Constants.initial_endowment),
             timed_tasks=self.player.participant.vars.get('timed_tasks', []),
             metric_label=get_metric_label(),
         )
+
 
 page_sequence = [Intro, Task, Summary]

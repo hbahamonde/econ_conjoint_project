@@ -5,15 +5,12 @@ from pathlib import Path
 
 
 doc = """
-Toy economic conjoint:
-- 2 tasks
-- candidates drawn from one common pool
-- 2 candidate photos per task
-- left/right randomized
-- hidden expandable info
-- one timed task and one untimed task
-- subjects guess who got the higher vote share
-- immediate feedback on the same page
+Toy economic conjoint with:
+- pooled candidate draw
+- timer randomization at the task level
+- immediate feedback
+- explicit info costs
+- running point balance with endowment
 """
 
 
@@ -75,7 +72,6 @@ def available_candidate_ids():
     for candidate_id, row in CANDIDATE_DATA.items():
         image_path = image_dir / f'{candidate_id}.jpg'
 
-        # keep only candidates with an image and non-missing core variables
         if (
             image_path.exists()
             and row['party'] != ''
@@ -92,12 +88,15 @@ class Constants(BaseConstants):
     players_per_group = None
     num_rounds = 2
 
-    base_points = 100
-    time_penalty_per_second = 2
-    info_click_cost = 5
-
     compare_metric = 'vote_share'
     timer_probability = 0.5
+
+    initial_endowment = 100
+    correct_payoff = 30
+    incorrect_payoff = -15
+    info_click_cost = 5
+    time_penalty_per_second = 1
+
 
 class Subsession(BaseSubsession):
     pass
@@ -121,6 +120,12 @@ def creating_session(subsession):
         return
 
     for player in subsession.get_players():
+        if 'initial_endowment' not in player.participant.vars:
+            player.participant.vars['initial_endowment'] = Constants.initial_endowment
+
+        if 'point_balance' not in player.participant.vars:
+            player.participant.vars['point_balance'] = Constants.initial_endowment
+
         if 'timed_tasks' not in player.participant.vars:
             player.participant.vars['timed_tasks'] = [
                 random.random() < Constants.timer_probability
@@ -129,6 +134,7 @@ def creating_session(subsession):
 
         if 'drawn_candidates' not in player.participant.vars:
             player.participant.vars['drawn_candidates'] = draw_candidates_for_game()
+
 
 class Group(BaseGroup):
     pass
@@ -149,12 +155,22 @@ class Player(BasePlayer):
     time_spent_seconds = models.FloatField(initial=0)
 
     info_cost_spent = models.IntegerField(initial=0)
+    time_penalty_applied = models.IntegerField(initial=0)
+    accuracy_payoff = models.IntegerField(initial=0)
+    task_net_change = models.IntegerField(initial=0)
+    balance_after_task = models.IntegerField(initial=0)
 
     correct = models.BooleanField(initial=False)
     points_earned = models.IntegerField(initial=0)
 
 
 def ensure_randomization(player):
+    if 'initial_endowment' not in player.participant.vars:
+        player.participant.vars['initial_endowment'] = Constants.initial_endowment
+
+    if 'point_balance' not in player.participant.vars:
+        player.participant.vars['point_balance'] = Constants.initial_endowment
+
     if 'timed_tasks' not in player.participant.vars:
         player.participant.vars['timed_tasks'] = [
             random.random() < Constants.timer_probability
@@ -163,6 +179,7 @@ def ensure_randomization(player):
 
     if 'drawn_candidates' not in player.participant.vars:
         player.participant.vars['drawn_candidates'] = draw_candidates_for_game()
+
 
 def get_candidates_for_round(player):
     ensure_randomization(player)
@@ -188,6 +205,7 @@ def assign_positions(player):
     player.left_candidate_id = shuffled[0]
     player.right_candidate_id = shuffled[1]
     player.timed_task = player.participant.vars['timed_tasks'][player.round_number - 1]
+
 
 def candidate_payload(candidate_id):
     row = CANDIDATE_DATA[candidate_id]

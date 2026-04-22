@@ -4,6 +4,9 @@ Economic Conjoint Demo
 
 {{ block content }}
 
+<p><strong>Initial endowment:</strong> {{ initial_endowment }} points</p>
+<p><strong>Current balance:</strong> {{ current_balance }} points</p>
+
 <p>
     In each task, you will see two candidate photos.
 </p>
@@ -14,7 +17,7 @@ Economic Conjoint Demo
 </p>
 
 <p>
-    Each time you reveal information, it costs points.
+    Each information reveal costs <strong>{{ info_click_cost }}</strong> points.
 </p>
 
 <p>
@@ -22,12 +25,17 @@ Economic Conjoint Demo
 </p>
 
 <p>
-    One of the two tasks will include a visible timer. In that timed task, the longer you take,
-    the fewer points you earn if your answer is correct.
+    If your answer is correct, you gain <strong>{{ correct_payoff }}</strong> points.
+    If your answer is incorrect, you lose <strong>{{ incorrect_payoff|abs }}</strong> points.
 </p>
 
 <p>
-    After you choose, you will immediately see whether your answer was correct.
+    In timed tasks, each second costs <strong>{{ time_penalty_per_second }}</strong> point,
+    but only if your answer is correct.
+</p>
+
+<p>
+    After each task, your point balance will be updated.
 </p>
 
 {{ next_button }}

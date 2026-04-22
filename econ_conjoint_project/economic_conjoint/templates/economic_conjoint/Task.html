@@ -100,6 +100,8 @@ Task {{ round_number }} of {{ total_rounds }}
     <div class="top-bar">
         <div>
             <strong>Goal:</strong> Choose the candidate you think obtained the higher {{ metric_label }}.
+            <br>
+            <strong>Current balance:</strong> <span id="current-balance">{{ current_balance }}</span> points
         </div>
         <div>
             {% if timed_task %}
@@ -111,8 +113,12 @@ Task {{ round_number }} of {{ total_rounds }}
     </div>
 
     <div style="margin-bottom: 16px;">
-        <strong>Information cost:</strong> Each “Reveal info” click costs {{ info_click_cost }} points.
-        <br>
+        <strong>Correct answer:</strong> +{{ correct_payoff }} points<br>
+        <strong>Incorrect answer:</strong> {{ incorrect_payoff }} points<br>
+        <strong>Information cost:</strong> each “Reveal info” click costs {{ info_click_cost }} points<br>
+        {% if timed_task %}
+            <strong>Time penalty:</strong> {{ time_penalty_per_second }} point per second, only if correct<br>
+        {% endif %}
         <strong>Current information cost spent:</strong> <span id="info-cost-total">0</span>
     </div>
 
@@ -159,7 +165,11 @@ Task {{ round_number }} of {{ total_rounds }}
     <div id="feedback-box" class="feedback-box">
         <div id="feedback-text"></div>
         <div style="margin-top: 10px;">
-            <strong>Estimated points for this task:</strong> <span id="points-preview"></span>
+            <strong>Accuracy payoff:</strong> <span id="accuracy-payoff-preview"></span><br>
+            <strong>Time penalty:</strong> <span id="time-penalty-preview"></span><br>
+            <strong>Info cost:</strong> <span id="info-cost-preview"></span><br>
+            <strong>Net change this task:</strong> <span id="net-change-preview"></span><br>
+            <strong>Balance after task:</strong> <span id="balance-after-preview"></span>
         </div>
     </div>
 
@@ -180,10 +190,12 @@ Task {{ round_number }} of {{ total_rounds }}
     let timerInterval = null;
     let timedTask = {{ timed_task|json }};
     let infoClickCost = {{ info_click_cost }};
-    let basePoints = {{ base_points }};
-    let timePenalty = {{ time_penalty }};
+    let correctPayoff = {{ correct_payoff }};
+    let incorrectPayoff = {{ incorrect_payoff }};
+    let timePenaltyPerSecond = {{ time_penalty_per_second }};
     let winnerSide = "{{ winner_side }}";
     let winnerMetric = {{ winner_metric|json }};
+    let currentBalance = {{ current_balance }};
 
     let infoSpent = 0;
     let feedbackShown = false;
@@ -242,16 +254,15 @@ Task {{ round_number }} of {{ total_rounds }}
         const seconds = updateElapsedTime();
         const correct = (chosenSide === winnerSide);
 
-        let grossPoints = 0;
-        if (correct) {
-            if (timedTask) {
-                grossPoints = Math.max(0, basePoints - (seconds * timePenalty));
-            } else {
-                grossPoints = basePoints;
-            }
+        let accuracyPayoff = correct ? correctPayoff : incorrectPayoff;
+        let timePenalty = 0;
+
+        if (correct && timedTask) {
+            timePenalty = seconds * timePenaltyPerSecond;
         }
 
-        const netPoints = Math.max(0, grossPoints - infoSpent);
+        let netChange = accuracyPayoff - timePenalty - infoSpent;
+        let balanceAfter = Math.max(0, currentBalance + netChange);
 
         const box = document.getElementById('feedback-box');
         const text = document.getElementById('feedback-text');
@@ -266,7 +277,12 @@ Task {{ round_number }} of {{ total_rounds }}
             text.innerHTML = `<strong>Incorrect.</strong> The candidate on the ${winnerSide} had the higher {{ metric_label }} (${winnerMetric}).`;
         }
 
-        document.getElementById('points-preview').textContent = netPoints;
+        document.getElementById('accuracy-payoff-preview').textContent = accuracyPayoff;
+        document.getElementById('time-penalty-preview').textContent = `-${timePenalty}`;
+        document.getElementById('info-cost-preview').textContent = `-${infoSpent}`;
+        document.getElementById('net-change-preview').textContent = netChange;
+        document.getElementById('balance-after-preview').textContent = balanceAfter;
+
         feedbackShown = true;
     }
 
