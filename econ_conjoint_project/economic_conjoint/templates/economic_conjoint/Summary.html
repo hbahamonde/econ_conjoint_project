@@ -1,0 +1,33 @@
+{{ block title }}
+Summary
+{{ endblock }}
+
+{{ block content }}
+
+<p><strong>Total points earned:</strong> {{ total_points }}</p>
+<p><strong>Timed task:</strong> Task {{ timed_round }}</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Task</th>
+            <th>Timed?</th>
+            <th>Time spent</th>
+            <th>Correct?</th>
+            <th>Points</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in rounds %}
+        <tr>
+            <td>{{ p.round_number }}</td>
+            <td>{{ p.timed_task }}</td>
+            <td>{{ p.time_spent_seconds }}</td>
+            <td>{{ p.correct }}</td>
+            <td>{{ p.points_earned }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{{ endblock }}

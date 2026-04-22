@@ -1,0 +1,194 @@
+{{ block title }}
+Task {{ round_number }} of {{ total_rounds }}
+{{ endblock }}
+
+{{ block content }}
+
+<style>
+    .task-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding: 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f8f9fa;
+    }
+    .profiles {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        margin-top: 20px;
+    }
+    .profile-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 18px;
+        background: white;
+        text-align: center;
+    }
+    .profile-card img {
+        max-width: 100%;
+        max-height: 420px;
+        object-fit: contain;
+        border-radius: 6px;
+        margin-bottom: 16px;
+    }
+    .info-box {
+        display: none;
+        margin-top: 14px;
+        padding: 12px;
+        border: 1px solid #d9d9d9;
+        border-radius: 8px;
+        background: #f5f5f5;
+        text-align: left;
+    }
+    .btn-row {
+        margin-top: 16px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .choice-btn {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        background: #0d6efd;
+        color: white;
+        cursor: pointer;
+    }
+    .reveal-btn {
+        padding: 10px 16px;
+        border: 1px solid #666;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+    }
+    .selected-choice {
+        background: #198754 !important;
+    }
+    .timer-box {
+        font-weight: 700;
+        font-size: 18px;
+        color: #b02a37;
+    }
+    .hidden-input {
+        display: none;
+    }
+</style>
+
+<div class="task-wrapper">
+    <div class="top-bar">
+        <div>
+            <strong>Goal:</strong> Choose the candidate you think received more votes.
+        </div>
+        <div>
+            {% if timed_task %}
+                <span class="timer-box">Timed task — elapsed time: <span id="timer">0</span> sec</span>
+            {% else %}
+                <span><strong>Untimed task</strong></span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profiles">
+        <div class="profile-card">
+            <img src="{% static left_candidate.image_path %}" alt="Candidate on left">
+
+            <div class="btn-row">
+                <button type="button" class="reveal-btn" onclick="revealInfo('left')">Reveal info</button>
+                <button type="button" id="choose-left" class="choice-btn" onclick="chooseCandidate('{{ left_candidate.id }}', 'left')">
+                    Choose this candidate
+                </button>
+            </div>
+
+            <div id="left-info" class="info-box">
+                <p><strong>Ideology:</strong> {{ left_candidate.ideology }}</p>
+                <p><strong>Party:</strong> {{ left_candidate.party }}</p>
+                <p><strong>Age:</strong> {{ left_candidate.age }}</p>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <img src="{% static right_candidate.image_path %}" alt="Candidate on right">
+
+            <div class="btn-row">
+                <button type="button" class="reveal-btn" onclick="revealInfo('right')">Reveal info</button>
+                <button type="button" id="choose-right" class="choice-btn" onclick="chooseCandidate('{{ right_candidate.id }}', 'right')">
+                    Choose this candidate
+                </button>
+            </div>
+
+            <div id="right-info" class="info-box">
+                <p><strong>Ideology:</strong> {{ right_candidate.ideology }}</p>
+                <p><strong>Party:</strong> {{ right_candidate.party }}</p>
+                <p><strong>Age:</strong> {{ right_candidate.age }}</p>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" name="left_info_opened" id="id_left_info_opened" value="False">
+    <input type="hidden" name="right_info_opened" id="id_right_info_opened" value="False">
+    <input type="hidden" name="decision_candidate_id" id="id_decision_candidate_id">
+    <input type="hidden" name="decision_side" id="id_decision_side">
+    <input type="hidden" name="time_spent_seconds" id="id_time_spent_seconds" value="0">
+
+    <div style="margin-top: 28px;">
+        <button class="otree-btn-next btn btn-primary">Next</button>
+    </div>
+</div>
+
+<script>
+    let startTime = Date.now();
+    let timerInterval = null;
+    let timedTask = {{ timed_task|json }};
+
+    function revealInfo(side) {
+        const box = document.getElementById(side + '-info');
+        box.style.display = 'block';
+
+        if (side === 'left') {
+            document.getElementById('id_left_info_opened').value = 'True';
+        }
+        if (side === 'right') {
+            document.getElementById('id_right_info_opened').value = 'True';
+        }
+    }
+
+    function chooseCandidate(candidateId, side) {
+        document.getElementById('id_decision_candidate_id').value = candidateId;
+        document.getElementById('id_decision_side').value = side;
+
+        document.getElementById('choose-left').classList.remove('selected-choice');
+        document.getElementById('choose-right').classList.remove('selected-choice');
+
+        document.getElementById('choose-' + side).classList.add('selected-choice');
+    }
+
+    function updateElapsedTime() {
+        const seconds = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById('id_time_spent_seconds').value = seconds;
+        if (timedTask) {
+            document.getElementById('timer').textContent = seconds;
+        }
+    }
+
+    if (timedTask) {
+        timerInterval = setInterval(updateElapsedTime, 1000);
+    }
+
+    document.querySelector('form').addEventListener('submit', function() {
+        updateElapsedTime();
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+    });
+</script>
+
+{{ endblock }}
