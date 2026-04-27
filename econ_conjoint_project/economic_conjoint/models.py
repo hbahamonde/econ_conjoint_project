@@ -5,13 +5,22 @@ from pathlib import Path
 
 
 doc = """
-Toy economic conjoint with:
+Economic conjoint with:
 - pooled candidate draw
-- timer randomization at the task level
-- immediate feedback
-- explicit info costs
-- running point balance with endowment
+- task-level timer randomization
+- attribute-level unlocking
+- randomized attribute order by subject
+- dynamic attribute pricing
+- running balance with endowment
 """
+
+
+def first_nonempty(row, keys):
+    for key in keys:
+        value = (row.get(key, '') or '').strip()
+        if value != '':
+            return value
+    return ''
 
 
 def load_candidate_data():
@@ -44,11 +53,23 @@ def load_candidate_data():
             except:
                 votes = 0
 
+            occupation = first_nonempty(
+                row,
+                [
+                    'occupation',
+                    'OCCUPATION',
+                    'ocupacion',
+                    'OCUPACION',
+                    'ammatti',
+                    'AMMATTI',
+                ],
+            )
+
             rows[candidate_id] = {
                 'id': candidate_id,
                 'party': row.get('PARTIDO', '').strip(),
-                'ideology': row.get('ideologia_cat', '').strip(),
                 'age': row.get('age', '').strip() or row.get('EDAD', '').strip(),
+                'occupation': occupation,
                 'votes': votes,
                 'vote_share': vote_share,
                 'municipality': row.get('MUNICIPIO', '').strip(),
@@ -59,6 +80,54 @@ def load_candidate_data():
 
 CANDIDATE_DATA = load_candidate_data()
 
+
+# Temporary toy profile values for development.
+# These let the Finnish-version app run even before the Finnish metadata file is available.
+# Replace these with real Finnish values later.
+TOY_PROFILE_OVERRIDES = {
+    '110108': {
+        'party': 'Party A',
+        'age': '42',
+        'occupation': 'Teacher',
+    },
+    '110702': {
+        'party': 'Party B',
+        'age': '51',
+        'occupation': 'Engineer',
+    },
+    '113701': {
+        'party': 'Party C',
+        'age': '36',
+        'occupation': 'Nurse',
+    },
+    '119102': {
+        'party': 'Party A',
+        'age': '47',
+        'occupation': 'Lawyer',
+    },
+}
+
+
+def apply_toy_profile_overrides():
+    for candidate_id, override in TOY_PROFILE_OVERRIDES.items():
+        if candidate_id not in CANDIDATE_DATA:
+            CANDIDATE_DATA[candidate_id] = {
+                'id': candidate_id,
+                'party': '',
+                'age': '',
+                'occupation': '',
+                'votes': 0,
+                'vote_share': 0.0,
+                'municipality': '',
+                'year': '',
+            }
+
+        CANDIDATE_DATA[candidate_id]['party'] = override['party']
+        CANDIDATE_DATA[candidate_id]['age'] = override['age']
+        CANDIDATE_DATA[candidate_id]['occupation'] = override['occupation']
+
+
+apply_toy_profile_overrides()
 
 def available_candidate_ids():
     image_dir = (
@@ -72,12 +141,14 @@ def available_candidate_ids():
     for candidate_id, row in CANDIDATE_DATA.items():
         image_path = image_dir / f'{candidate_id}.jpg'
 
-        if (
-            image_path.exists()
-            and row['party'] != ''
-            and row['ideology'] != ''
-            and row['age'] != ''
-        ):
+        if not image_path.exists():
+            continue
+
+        party = (row.get('party', '') or '').strip()
+        age = (row.get('age', '') or '').strip()
+        occupation = (row.get('occupation', '') or '').strip()
+
+        if party != '' and age != '' and occupation != '':
             available.append(candidate_id)
 
     return available
@@ -94,8 +165,43 @@ class Constants(BaseConstants):
     initial_endowment = 100
     correct_payoff = 30
     incorrect_payoff = -15
-    info_click_cost = 5
     time_penalty_per_second = 1
+
+    # default dynamic pricing structure
+    default_info_cost_unit = 2
+    default_attribute_weights = {
+        'party': 3,
+        'occupation': 2,
+        'age': 1,
+    }
+
+    attribute_keys = ['party', 'age', 'occupation']
+
+
+def get_attribute_weights(session):
+    weights = Constants.default_attribute_weights.copy()
+
+    for attr in weights.keys():
+        config_key = f'weight_{attr}'
+        if config_key in session.config and session.config[config_key] is not None:
+            weights[attr] = int(session.config[config_key])
+
+    return weights
+
+
+def get_attribute_costs(session):
+    weights = get_attribute_weights(session)
+    base_unit = session.config.get('info_cost_unit', Constants.default_info_cost_unit)
+
+    costs = {}
+    for attr, weight in weights.items():
+        direct_cost_key = f'cost_{attr}'
+        if direct_cost_key in session.config and session.config[direct_cost_key] is not None:
+            costs[attr] = int(session.config[direct_cost_key])
+        else:
+            costs[attr] = int(base_unit * weight)
+
+    return costs
 
 
 class Subsession(BaseSubsession):
@@ -135,6 +241,12 @@ def creating_session(subsession):
         if 'drawn_candidates' not in player.participant.vars:
             player.participant.vars['drawn_candidates'] = draw_candidates_for_game()
 
+        if 'attribute_order' not in player.participant.vars:
+            player.participant.vars['attribute_order'] = random.sample(
+                Constants.attribute_keys,
+                len(Constants.attribute_keys),
+            )
+
 
 class Group(BaseGroup):
     pass
@@ -144,10 +256,15 @@ class Player(BasePlayer):
     left_candidate_id = models.StringField()
     right_candidate_id = models.StringField()
 
-    left_info_opened = models.BooleanField(initial=False)
-    right_info_opened = models.BooleanField(initial=False)
-
     timed_task = models.BooleanField(initial=False)
+
+    left_party_opened = models.BooleanField(initial=False)
+    left_age_opened = models.BooleanField(initial=False)
+    left_occupation_opened = models.BooleanField(initial=False)
+
+    right_party_opened = models.BooleanField(initial=False)
+    right_age_opened = models.BooleanField(initial=False)
+    right_occupation_opened = models.BooleanField(initial=False)
 
     decision_candidate_id = models.StringField(blank=True)
     decision_side = models.StringField(blank=True)
@@ -179,6 +296,12 @@ def ensure_randomization(player):
 
     if 'drawn_candidates' not in player.participant.vars:
         player.participant.vars['drawn_candidates'] = draw_candidates_for_game()
+
+    if 'attribute_order' not in player.participant.vars:
+        player.participant.vars['attribute_order'] = random.sample(
+            Constants.attribute_keys,
+            len(Constants.attribute_keys),
+        )
 
 
 def get_candidates_for_round(player):
@@ -213,8 +336,8 @@ def candidate_payload(candidate_id):
         id=row['id'],
         image_path=f'economic_conjoint/images/{row["id"]}.jpg',
         party=row['party'],
-        ideology=row['ideology'],
         age=row['age'],
+        occupation=row['occupation'],
         votes=row['votes'],
         vote_share=row['vote_share'],
         municipality=row['municipality'],

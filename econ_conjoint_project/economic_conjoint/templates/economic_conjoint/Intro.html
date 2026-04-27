@@ -12,12 +12,22 @@ Economic Conjoint Demo
 </p>
 
 <p>
-    You may reveal a small amount of information about each candidate:
-    ideology, party, and age.
+    You may selectively unlock three profile attributes for each candidate:
+    <strong>party</strong>, <strong>age</strong>, and <strong>occupation</strong>.
 </p>
 
 <p>
-    Each information reveal costs <strong>{{ info_click_cost }}</strong> points.
+    Each attribute has its own point cost:
+</p>
+
+<ul>
+    <li><strong>Party:</strong> {{ party_cost }} points</li>
+    <li><strong>Age:</strong> {{ age_cost }} points</li>
+    <li><strong>Occupation:</strong> {{ occupation_cost }} points</li>
+</ul>
+
+<p>
+    These costs are determined centrally by the design and can be varied across implementations.
 </p>
 
 <p>
@@ -26,7 +36,7 @@ Economic Conjoint Demo
 
 <p>
     If your answer is correct, you gain <strong>{{ correct_payoff }}</strong> points.
-    If your answer is incorrect, you lose <strong>15</strong> points.
+    If your answer is incorrect, you lose <strong>{{ incorrect_payoff_display }}</strong> points.
 </p>
 
 <p>

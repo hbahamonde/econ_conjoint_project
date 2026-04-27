@@ -6,7 +6,7 @@ Task {{ round_number }} of {{ total_rounds }}
 
 <style>
     .task-wrapper {
-        max-width: 1200px;
+        max-width: 1250px;
         margin: 0 auto;
     }
     .top-bar {
@@ -39,23 +39,27 @@ Task {{ round_number }} of {{ total_rounds }}
         border-radius: 6px;
         margin-bottom: 16px;
     }
-    .info-box {
-        display: none;
-        margin-top: 14px;
-        padding: 12px;
-        border: 1px solid #d9d9d9;
-        border-radius: 8px;
-        background: #f5f5f5;
-        text-align: left;
-    }
-    .btn-row {
-        margin-top: 16px;
+    .unlock-stack {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
         gap: 10px;
-        flex-wrap: wrap;
+        margin-top: 16px;
+        margin-bottom: 14px;
+        align-items: center;
+    }
+    .unlock-btn {
+        width: 260px;
+        padding: 10px 16px;
+        border: 1px solid #666;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+    }
+    .choose-row {
+        margin-top: 10px;
     }
     .choice-btn {
+        width: 260px;
         padding: 10px 16px;
         border: none;
         border-radius: 8px;
@@ -63,15 +67,21 @@ Task {{ round_number }} of {{ total_rounds }}
         color: white;
         cursor: pointer;
     }
-    .reveal-btn {
-        padding: 10px 16px;
-        border: 1px solid #666;
-        border-radius: 8px;
-        background: white;
-        cursor: pointer;
-    }
     .selected-choice {
         background: #198754 !important;
+    }
+    .unlocked-info {
+        margin-top: 16px;
+        padding: 12px;
+        border: 1px solid #d9d9d9;
+        border-radius: 8px;
+        background: #f5f5f5;
+        text-align: left;
+        min-height: 110px;
+    }
+    .info-line {
+        display: none;
+        margin-bottom: 8px;
     }
     .timer-box {
         font-weight: 700;
@@ -115,7 +125,6 @@ Task {{ round_number }} of {{ total_rounds }}
     <div style="margin-bottom: 16px;">
         <strong>Correct answer:</strong> +{{ correct_payoff }} points<br>
         <strong>Incorrect answer:</strong> {{ incorrect_payoff }} points<br>
-        <strong>Information cost:</strong> each “Reveal info” click costs {{ info_click_cost }} points<br>
         {% if timed_task %}
             <strong>Time penalty:</strong> {{ time_penalty_per_second }} point per second, only if correct<br>
         {% endif %}
@@ -126,38 +135,36 @@ Task {{ round_number }} of {{ total_rounds }}
         <div class="profile-card">
             <img src="{% static left_candidate.image_path %}" alt="Candidate on left">
 
-            <div class="btn-row">
-                <button type="button" id="reveal-left" class="reveal-btn" onclick="revealInfo('left')">
-                    Reveal info (-{{ info_click_cost }} points)
-                </button>
+            <div class="unlock-stack" id="left-unlock-stack"></div>
+
+            <div class="choose-row">
                 <button type="button" id="choose-left" class="choice-btn" onclick="chooseCandidate('{{ left_candidate.id }}', 'left')">
                     Choose this candidate
                 </button>
             </div>
 
-            <div id="left-info" class="info-box">
-                <p><strong>Ideology:</strong> {{ left_candidate.ideology }}</p>
-                <p><strong>Party:</strong> {{ left_candidate.party }}</p>
-                <p><strong>Age:</strong> {{ left_candidate.age }}</p>
+            <div class="unlocked-info">
+                <div id="left-party-info" class="info-line"><strong>Party:</strong> {{ left_candidate.party }}</div>
+                <div id="left-age-info" class="info-line"><strong>Age:</strong> {{ left_candidate.age }}</div>
+                <div id="left-occupation-info" class="info-line"><strong>Occupation:</strong> {{ left_candidate.occupation }}</div>
             </div>
         </div>
 
         <div class="profile-card">
             <img src="{% static right_candidate.image_path %}" alt="Candidate on right">
 
-            <div class="btn-row">
-                <button type="button" id="reveal-right" class="reveal-btn" onclick="revealInfo('right')">
-                    Reveal info (-{{ info_click_cost }} points)
-                </button>
+            <div class="unlock-stack" id="right-unlock-stack"></div>
+
+            <div class="choose-row">
                 <button type="button" id="choose-right" class="choice-btn" onclick="chooseCandidate('{{ right_candidate.id }}', 'right')">
                     Choose this candidate
                 </button>
             </div>
 
-            <div id="right-info" class="info-box">
-                <p><strong>Ideology:</strong> {{ right_candidate.ideology }}</p>
-                <p><strong>Party:</strong> {{ right_candidate.party }}</p>
-                <p><strong>Age:</strong> {{ right_candidate.age }}</p>
+            <div class="unlocked-info">
+                <div id="right-party-info" class="info-line"><strong>Party:</strong> {{ right_candidate.party }}</div>
+                <div id="right-age-info" class="info-line"><strong>Age:</strong> {{ right_candidate.age }}</div>
+                <div id="right-occupation-info" class="info-line"><strong>Occupation:</strong> {{ right_candidate.occupation }}</div>
             </div>
         </div>
     </div>
@@ -173,8 +180,14 @@ Task {{ round_number }} of {{ total_rounds }}
         </div>
     </div>
 
-    <input type="hidden" name="left_info_opened" id="id_left_info_opened" value="False">
-    <input type="hidden" name="right_info_opened" id="id_right_info_opened" value="False">
+    <input type="hidden" name="left_party_opened" id="id_left_party_opened" value="False">
+    <input type="hidden" name="left_age_opened" id="id_left_age_opened" value="False">
+    <input type="hidden" name="left_occupation_opened" id="id_left_occupation_opened" value="False">
+
+    <input type="hidden" name="right_party_opened" id="id_right_party_opened" value="False">
+    <input type="hidden" name="right_age_opened" id="id_right_age_opened" value="False">
+    <input type="hidden" name="right_occupation_opened" id="id_right_occupation_opened" value="False">
+
     <input type="hidden" name="decision_candidate_id" id="id_decision_candidate_id">
     <input type="hidden" name="decision_side" id="id_decision_side">
     <input type="hidden" name="time_spent_seconds" id="id_time_spent_seconds" value="0">
@@ -188,8 +201,8 @@ Task {{ round_number }} of {{ total_rounds }}
 <script>
     let startTime = Date.now();
     let timerInterval = null;
+
     let timedTask = {{ timed_task|json }};
-    let infoClickCost = {{ info_click_cost }};
     let correctPayoff = {{ correct_payoff }};
     let incorrectPayoff = {{ incorrect_payoff }};
     let timePenaltyPerSecond = {{ time_penalty_per_second }};
@@ -197,8 +210,18 @@ Task {{ round_number }} of {{ total_rounds }}
     let winnerMetric = {{ winner_metric|json }};
     let currentBalance = {{ current_balance }};
 
+    let attributeOrder = {{ attribute_order_json }};
+    let attributeCosts = {{ attribute_costs_json }};
+    let attributeWeights = {{ attribute_weights_json }};
+
     let infoSpent = 0;
     let feedbackShown = false;
+
+    const attributeLabels = {
+        party: 'Party',
+        age: 'Age',
+        occupation: 'Occupation'
+    };
 
     function updateElapsedTime() {
         const seconds = Math.floor((Date.now() - startTime) / 1000);
@@ -209,27 +232,51 @@ Task {{ round_number }} of {{ total_rounds }}
         return seconds;
     }
 
-    function revealInfo(side) {
-        const box = document.getElementById(side + '-info');
-        const btn = document.getElementById('reveal-' + side);
+    function hiddenInputId(side, attr) {
+        return `id_${side}_${attr}_opened`;
+    }
 
-        if (box.style.display === 'block') {
+    function infoLineId(side, attr) {
+        return `${side}-${attr}-info`;
+    }
+
+    function unlockButtonId(side, attr) {
+        return `${side}-unlock-${attr}`;
+    }
+
+    function unlockAttribute(side, attr) {
+        const infoLine = document.getElementById(infoLineId(side, attr));
+        const input = document.getElementById(hiddenInputId(side, attr));
+        const btn = document.getElementById(unlockButtonId(side, attr));
+
+        if (input.value === 'True') {
             return;
         }
 
-        box.style.display = 'block';
+        infoLine.style.display = 'block';
+        input.value = 'True';
         btn.disabled = true;
 
-        infoSpent += infoClickCost;
+        infoSpent += attributeCosts[attr];
         document.getElementById('info-cost-total').textContent = infoSpent;
         document.getElementById('id_info_cost_spent').value = infoSpent;
+    }
 
-        if (side === 'left') {
-            document.getElementById('id_left_info_opened').value = 'True';
-        }
-        if (side === 'right') {
-            document.getElementById('id_right_info_opened').value = 'True';
-        }
+    function buildUnlockButtons(side) {
+        const container = document.getElementById(`${side}-unlock-stack`);
+        container.innerHTML = '';
+
+        attributeOrder.forEach(attr => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = unlockButtonId(side, attr);
+            btn.className = 'unlock-btn';
+            btn.textContent = `Unlock ${attr} (-${attributeCosts[attr]} points)`;
+            btn.onclick = function() {
+                unlockAttribute(side, attr);
+            };
+            container.appendChild(btn);
+        });
     }
 
     function chooseCandidate(candidateId, side) {
@@ -285,6 +332,11 @@ Task {{ round_number }} of {{ total_rounds }}
 
         feedbackShown = true;
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        buildUnlockButtons('left');
+        buildUnlockButtons('right');
+    });
 
     if (timedTask) {
         timerInterval = setInterval(updateElapsedTime, 1000);
