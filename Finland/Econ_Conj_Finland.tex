@@ -1,40 +1,134 @@
 
+
+% !Rnw weave = knitr
+% !TeX program = pdflatex
+
+%========================
+% paper.tex
+%========================
 \documentclass[11pt]{article}
+
+%---- Page & fonts
 \usepackage[margin=1in]{geometry}
-\usepackage{hyperref}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{setspace}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\DeclareUnicodeCharacter{2013}{--}   % en dash
+\DeclareUnicodeCharacter{2014}{---}  % em dash
+\DeclareUnicodeCharacter{2212}{-}    % unicode minus
+\usepackage{lmodern}
+\usepackage[american]{babel}
+\usepackage{microtype}
+\usepackage{authblk}
+\usepackage{tabularray}
+\UseTblrLibrary{booktabs}
+\UseTblrLibrary{siunitx} % tinytable uses \num from siunitx; you already load siunitx
+% also add this to be safe for the multiplication sign in labels
+\DeclareUnicodeCharacter{00D7}{\times}
+
+%---- Math & symbols
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{bbm}          % for \mathbbm{1} indicator
+\usepackage{siunitx}
+\usepackage{dcolumn}   % needed for stargazer's D{.}{.}{-3} columns
+\usepackage{csquotes}  % recommended with biblatex (silences that warning)
+
+%---- Graphics, tables, floats
 \usepackage{graphicx}
+\graphicspath{{fig/}{figures/}{build/}} % adjust as needed
+\usepackage{booktabs, threeparttable}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage[backend=biber, citestyle=authoryear-icomp, bibstyle=authoryear]{biblatex}
-\addbibresource{bib.bib}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+
+
+%---- % Allows abstract customization
+\usepackage{abstract} 
+\renewcommand{\abstractnamefont}{\normalfont\bfseries} % Set the "Abstract" text to bold
+%\renewcommand{\abstracttextfont}{\normalfont\small\itshape} % Set the abstract itself to small italic text
+
+
+
+%---- Links & clever refs
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+%---- Citations & bib
+\usepackage[backend=biber,style=authoryear,dashed=false,doi=false,isbn=false,url=false,arxiv=false]{biblatex}
 \addbibresource{/Users/hectorbahamonde/Bibliografia_PoliSci/library.bib}  % your .bib file
-\addbibresource{/Users/hectorbahamonde/Bibliografia_PoliSci/Bahamonde_BibTex2013.bib}  % your .bib file
 
-\onehalfspacing
-\setlength{\parindent}{0.5in}
 
-\title{Gendered Scrutiny under Scarcity: First Impressions, Endogenous Information Search, and a Novel Economic Conjoint Framework for Electoral Judgment}
-\author{}
+%---- Custom macros (edit as you like)
+
+
+%\title{Losers, Delegation, and the Ideological Valence of Expertise: Evidence from Finland}
+\vspace{-1cm}\title{First Impressions under Scarcity: An Economic Conjoint Experiment for Studying Electoral Judgment} % Article title
+
+% --- Authors (emails on one line)
+\author[1]{\textsc{Hector Bahamonde}}
+%\author[2]{\textsc{Andrea Canales}}
+%\author[3]{\textsc{Inga Saikkonen}}
+%\author[4]{\textsc{Mart Trasberg}}
+
+% one-line email row (no superscript)
+\affil[ ]{\small
+  \,|\, \href{mailto:hector.bahamonde@utu.fi}{hector.bahamonde@utu.fi} \,|\, 
+  %\href{mailto:andrea.canales@uoh.cl}{andrea.canales@uoh.cl} \,|\, 
+ % \href{mailto:inga.saikkonen@abo.fi}{inga.saikkonen@abo.fi} \,|\, 
+ % \href{mailto:mart.trasberg@tec.mx}{mart.trasberg@tec.mx} 
+ \vspace{1cm}
+}
+
+
+
+\affil[1]{Senior Researcher, University of Turku, Finland}
+%\affil[2]{Assistant Professor, O'Higgins University, Chile}
+%\affil[3]{Senior University Lecturer, {\AA}bo Akademi University, Finland}
+%\affil[4]{Assistant Professor of Political Science, School of Social Sciences and Government, Tecnol\'ogico de Monterrey, Mexico}
+
+% \href{http://www.hectorbahamonde.com}{\texttt{www.HectorBahamonde.com}}
+% \href{https://sites.google.com/view/andrea-canales-g/home}{\texttt{sites.google.com/view/andrea-canales-g/home}}
+% \href{https://research.abo.fi/en/persons/inga-saikkonen}{\texttt{research.abo.fi/en/persons/inga-saikkonen}}
+% \href{https://sites.google.com/view/marttrasberg/home}{\texttt{sites.google.com/view/marttrasberg/home}}
+
+
+\newcommand{\dpartial}[2]{\frac{\partial #1}{\partial #2}}
+
+
 \date{\today}
+
 
 \begin{document}
 
 \maketitle
 
+\begin{abstract}
+How do voters decide whether first impressions are sufficient, or whether additional information is worth acquiring before making a political judgment? Research in political psychology shows that facial appearance and other low-information cues shape candidate evaluations quickly and powerfully, while the conjoint literature typically assumes that all profile attributes are fully revealed from the outset. This paper introduces a new method---an economic conjoint experiment---that bridges these traditions by making information acquisition endogenous and costly. Respondents first encounter real candidate photographs in a low-information setting and then decide whether to spend points to unlock additional profile attributes before making a judgment. In some tasks, time pressure is randomized, allowing the design to identify how costly deliberation changes political evaluation. The method yields behavioral quantities of interest that standard fully revealed conjoint designs are not built to capture. In particular, I introduce \emph{marginal information demand} (MID), an estimand that summarizes the probability that a given piece of information is acquired under specified profile and task conditions. Substantively, the paper applies this design to the study of first impressions and gendered scrutiny in electoral judgment, arguing that female candidates may elicit greater information demand because they are evaluated under a higher burden of verification.
+\end{abstract}
+
+\newpage
+
 \section*{Introduction}
 
-Research in political psychology and political behavior has long shown that voters rely on low-information cues when evaluating candidates \parencite{Lau2001a}, especially facial appearance \parencite{Dion1998a,Stockemer2019a}, perceived competence \parencite{Herrmann2016}, attractiveness \parencite{Rosar2008,Dion1972a}, trustworthiness, and other first-impression signals \parencite{Bahamonde:2023}. At the same time, work in political economy and behavioral decision-making suggests that information use is shaped not only by limited cognition \parencite{Redlawsk2001} but also by the costs of acquiring and processing additional evidence \parencite{Zaller1992}. Yet these literatures have rarely been integrated in a way that treats information search itself as part of the political judgment process (but see \textcite{Lau2006}). Most existing studies ask whether appearance affects evaluations \parencite{Berggren2010,Berggren2017}, or whether providing new information changes preferences \parencite{Todorov2005,Mattes2010a}. Much less is known about whether voters actively {\bf \emph{choose}} to remain at the level of first impressions, when they decide to investigate further, and whether those search decisions are themselves structured by gender.
 
-This gap is especially important because first impressions appear to emerge extremely quickly and to persist even when additional information is available. The literature on candidate evaluation consistently suggests that photographs allow voters to form immediate impressions about candidates \parencite{Banducci2008}. Related work shows that such impressions can arise under extremely short exposure times (e.g., 100 milliseconds) and are often only weakly corrected by subsequent information \parencite{Todorov2005,Mattes2010a}. \textcite{Antonakis2009a} even report that children have the same (and sometimes even \emph{better}) predicting skills when choosing winning political candidates. {\bf If so, the key question is not simply whether facial appearance matters, but under what conditions respondents choose to verify, override, or act on those initial inferences}.
+Research in political psychology and political behavior has long shown that voters rely on low-information cues when evaluating candidates \parencite{Lau2001a}, especially facial appearance \parencite{Dion1998a,Stockemer2019a}, perceived competence \parencite{Herrmann2016}, attractiveness \parencite{Rosar2008,Dion1972a}, trustworthiness, and other first-impression signals \parencite{Bahamonde:2023}. At the same time, work in behavioral decision-making suggests that information use is shaped not only by limited cognition \parencite{Redlawsk2001} but also by the costs of acquiring and processing additional evidence \parencite{Zaller1992}. Yet these literatures have rarely been integrated in a way that treats information search itself as part of the political judgment process (but see \cite{Lau2006}). Most existing studies ask whether appearance affects evaluations \parencite{Berggren2010,Berggren2017}, or whether providing new information changes preferences \parencite{Todorov2005,Mattes2010a}. While prior research has examined how voters search among available information \parencite{Lau2006}, much less is known about how they behave when further information must be acquired under explicit budget constraints, and whether those costly search decisions are themselves structured by gender.
 
-This paper argues that electoral judgment is not only a matter of which candidate traits voters prefer, but also of how much effort they are willing to expend to learn about different candidates. That question is especially important in the case of women in politics. A large literature suggests that female candidates are often evaluated through gendered expectations and may face distinct standards of competence, likability, and suitability for office. But the existing evidence focuses mainly on vote choice, candidate evaluations, or stereotype activation \parencite{Ditonto2018,Krook2020}. It tells us whether gender matters for outcomes, but not whether \emph{gender shapes the process of attention allocation itself}. We contend that one of the key mechanisms of unequal political judgment may lie precisely there: {\bf female candidates may elicit greater information demand because respondents feel a stronger need to verify, resolve, or reconcile their initial impressions}. In that sense, political judgment is distributed unevenly across candidates.
+
+This gap is especially important because first impressions appear to emerge extremely quickly and to persist even when additional information is available. The literature on candidate evaluation consistently suggests that photographs allow voters to form immediate impressions about candidates \parencite{Banducci2008}. Related work shows that such impressions can arise under extremely short exposure times (e.g., 100 milliseconds) and are often only weakly corrected by subsequent information \parencite{Todorov2005,Mattes2010a}. \textcite{Antonakis2009a} even report that children have the same (and sometimes even \emph{better}) predicting skills when choosing winning political candidates. {\bf If so, the key question is not simply whether facial appearance matters, but under what conditions respondents \emph{choose} to verify, override, or act on those initial inferences}.
+
+This paper argues that electoral judgment is not only a matter of which candidate traits voters prefer, but also of how much effort they are willing to expend to learn about different candidates. That question is especially important in the case of women in politics. A large literature suggests that female candidates are often evaluated through gendered expectations and may face distinct standards of competence, likability, and suitability for office. But the existing evidence focuses mainly on vote choice \parencite{Bahamonde:2023}, candidate evaluations, or stereotype activation \parencite{Ditonto2018,Krook2020}. It tells us whether gender matters for outcomes, but not whether \emph{gender shapes the process of attention allocation itself}. We contend that one of the key mechanisms of unequal political judgment may lie precisely there: {\bf female candidates may elicit greater information demand because respondents feel a stronger need to verify, resolve, or reconcile their initial impressions}. In that sense, political judgment is distributed unevenly across candidates.
 
 Our core theoretical claim is that first impressions generate different levels of subjective confidence, and that this confidence governs the demand for additional information. When respondents believe that a candidate's face already provides a sufficiently clear signal, they may rationally decline to spend scarce resources on further investigation. Low search may therefore reflect efficient economizing if first impressions are informative and may also reflect overconfidence if respondents rely too heavily on facial heuristics. The gendered implication is especially important: if female candidates are judged under stricter priors \parencite{Ditonto2018,Krook2020}, respondents may be less willing to trust first impressions alone and more likely to invest in additional search. The result is a stronger demand for information not because women inherently provide less information, but because initial impressions of female candidates may activate motivated reasoning \parencite{Kunda1990}, inducing respondents to seek and evaluate additional evidence under a higher burden of verification.
 
-To study this process, we introduce a novel \emph{economic conjoint experiment} implemented in oTree (see prototype \href{https://econ-conjoint-project.onrender.com/}{here}). The design combines the multidimensional choice structure of conjoint analysis with an explicitly economic search environment in which information is scarce, costly, and endogenously acquired. Rather than presenting respondents with a fully revealed bundle of candidate attributes, we allow them to uncover information selectively by spending points from a limited budget. This transforms the conjoint from a passive stated-preference task into a sequential decision problem in which \emph{search behavior} itself becomes theoretically meaningful. Respondents first encounter real candidate photographs in a low-information setting, form an initial judgment, and then decide whether to pay to reveal additional profile attributes before updating their choice (see \autoref{fig:econ_conjoint_prototype}). The experiment therefore identifies not only which candidate features affect electoral judgments, but also which features respondents consider worth learning about, under what conditions, and for whom.
+To study this process, we introduce a novel \emph{economic conjoint experiment} implemented in oTree (see prototype \href{https://econ-conjoint-project.onrender.com/}{here}). The design combines the multidimensional choice structure of conjoint analysis \parencite{Hainmueller2014} with an explicitly economic search environment in which information is scarce, costly, and \emph{endogenously} acquired. Rather than presenting respondents with a fully revealed bundle of candidate attributes, we allow them to uncover information selectively by spending points from a limited budget. This transforms the conjoint from a \emph{passive} stated-preference task into a sequential decision problem in which \emph{search behavior} itself becomes theoretically meaningful. Following \textcite{Antonakis2009a}, respondents first encounter real candidate photographs in a low-information setting, form an initial judgment, but then decide whether to pay to reveal additional profile attributes before updating their choice (see \autoref{fig:econ_conjoint_prototype}). The experiment therefore identifies not only which candidate features affect electoral judgments, but also which features respondents consider worth learning about, under what conditions, and for whom. To capture this acquisition stage directly, we introduce a new estimand, which we call \emph{marginal information demand} (MID), for attribute $m$:
+
+\[
+MID_m(z,s) = \Pr(U_{ijtm}=1 \mid Z_{ijt}=z, S_{it}=s),
+\]
+
+where $MID_m(z,s)$ denotes the probability that attribute $m$ is unlocked under profile condition $z$ and task condition $s$; $U_{ijtm}=1$ indicates that respondent $i$ unlocks attribute $m$ for profile $j$ in task $t$; $Z_{ijt}$ denotes the profile-level condition of substantive interest, such as candidate gender in the present application; and $S_{it}$ denotes the relevant task condition. In the present design, one such task condition is time pressure. In some choice tasks assigned at random, respondents face a visible timer and a reward structure in which delay reduces the value of a correct answer. The purpose of this feature is to isolate the conditions under which respondents rely more heavily on first impressions when deliberation becomes costly. If rapid perceptual inferences are indeed powerful and persistent, then timed tasks provide a direct way to examine whether respondents fall back on facial heuristics when the opportunity to reflect is constrained.
 
 \begin{figure}[!htbp]
     \centering
@@ -58,13 +152,15 @@ To study this process, we introduce a novel \emph{economic conjoint experiment} 
     \label{fig:econ_conjoint_prototype}
 \end{figure}
 
-The design also incorporates task-level time pressure. In some choice tasks assigne at random, respondents face a visible timer and a reward structure in which delay reduces the value of a correct answer. The purpose of this feature is to isolate the conditions under which respondents rely more heavily on first impressions when deliberation becomes costly. If rapid perceptual inferences are indeed powerful and persistent, then timed tasks provide a direct way to examine whether respondents fall back on facial heuristics when the opportunity to reflect is constrained.
-
-This methodological contribution is substantial. Standard conjoint experiments are powerful tools for estimating the causal effects of profile attributes on selection probabilities \parencite{Hainmueller2014,Leeper2020a}, but they typically reveal much more about respondents' final choices than about the information-processing strategies that produced them. Recent work using eye-tracking shows that respondents in conjoint experiments selectively attend to some attributes and profiles while ignoring others, in ways consistent with bounded rationality and cognitive cost minimization \parencite{Jenke2021}. Our economic conjoint experiment extends this insight by making information acquisition itself endogenous and costly. {\bf Rather than inferring information use from researcher-imposed, fully revealed profiles, we design an environment in which respondents must decide for themselves whether additional information is worth acquiring before making a decision}.
+This methodological contribution is substantial. Standard conjoint experiments are powerful tools for estimating the causal effects of profile attributes on selection probabilities \parencite{Hainmueller2014,Leeper2020a}, but they typically reveal much more about respondents' \emph{final} choices than about the information-processing strategies that produced them. Recent work using eye-tracking shows that respondents in conjoint experiments selectively attend to some attributes and profiles while ignoring others, in ways consistent with bounded rationality and cognitive cost minimization \parencite{Jenke2021}. Based on the dynamic process tracing environment (DPTE) developed by \cite{Lau2006}, our economic conjoint experiment extends these insights by making information acquisition itself endogenous but also \emph{costly}. {\bf Rather than inferring information use from researcher-imposed, fully revealed conjoint profiles, we design an environment in which respondents must decide for themselves whether additional information is worth acquiring before making a decision}.
 
 We expect respondents to spend more points when visual cues are ambiguous or incongruent. We also expect this logic to be gendered: {\bf female candidates should trigger greater information demand}, consistent with a politics of asymmetric scrutiny in which women are evaluated under a higher burden of verification.
 
 
+
+
+
+\clearpage
 \newpage
 \section*{Technical Methodological Addendum}
 
@@ -73,13 +169,11 @@ We expect respondents to spend more points when visual cues are ambiguous or inc
 \begin{itemize}
     \item \textbf{Unit of evaluation.} Each respondent $i=1,\dots,N$ completes $T$ repeated choice tasks. In each task $t=1,\dots,T$, the respondent sees two candidate profiles, indexed by $j \in \{L,R\}$.
 
-    \item \textbf{Visual first exposure.} Each profile is initially presented only through the candidate's photograph. This creates a low-information stage in which respondents must first rely on first impressions before deciding whether to acquire additional information.
+    \item \textbf{Endogenous information acquisition.} For each profile, respondents can selectively unlock three attributes: party, age, and occupation (see \cite{Bahamonde2024}). Let $m \in \{\text{party}, \text{age}, \text{occupation}\}$ index the attribute. Unlocking is costly and therefore behaviorally meaningful.
 
-    \item \textbf{Endogenous information acquisition.} For each profile, respondents can selectively unlock three attributes: party, age, and occupation. Let $k \in \{\text{party}, \text{age}, \text{occupation}\}$ index the attribute. Unlocking is costly and therefore behaviorally meaningful.
+    \item \textbf{Randomization of candidate exposure.} The two profiles shown in each task, indexed by $j \in \{L,R\}$, are randomly drawn from the candidate pool and then randomly assigned to the left or right side of the screen. This randomization ensures that any side-specific effect is orthogonal to candidate characteristics.
 
-    \item \textbf{Randomization of candidate exposure.} Candidate photographs are randomly drawn from the candidate pool and then randomly assigned to the left or right side of the task screen. This randomization ensures that any side-specific effect is orthogonal to candidate characteristics.
-
-    \item \textbf{Randomization of information order.} The vertical order of the three unlockable attributes is randomized at the respondent level and then held fixed across tasks for that respondent. This prevents systematic ordering effects while preserving within-respondent comparability.
+    \item \textbf{Randomization of information order.} The vertical order of the three unlockable attributes $\{\text{party}, \text{age}, \text{occupation}\}$ is randomized at the respondent level and then held fixed across tasks $t=1,\dots,T$ for that respondent. This prevents systematic ordering effects while preserving within-respondent comparability.
 
     \item \textbf{Randomization of time pressure.} Time pressure is randomized at the task level. A given task may or may not include the timer, so respondents can experience untimed tasks only, timed tasks only, or a mixture of both across the survey.
 
@@ -92,51 +186,52 @@ We expect respondents to spend more points when visual cues are ambiguous or inc
 
 \subsection*{Main quantities of interest}
 
-The central advantage of the design is that it yields causal quantities not only for final choices, but also for the \emph{search process} itself. Let $G_{ijt} \in \{0,1\}$ denote whether profile $j$ shown to respondent $i$ in task $t$ is female, and let $S_{it} \in \{0,1\}$ denote whether task $t$ is timed.
+The central advantage of the design is that it yields causal quantities not only for final choices, but also for the \emph{search process} itself. Let $Z_{ijt}$ denote the profile-level condition of substantive interest, such as candidate gender in the present application, and let $S_{it} \in \{0,1\}$ denote whether task $t$ is timed.
 
 Let
 \[
-U_{ijkt} \in \{0,1\}
+U_{ijtm} \in \{0,1\}
 \]
-indicate whether respondent $i$ unlocks attribute $k$ for profile $j$ in task $t$.
+indicate whether respondent $i$ unlocks attribute $m$ for profile $j$ in task $t$.
 
-The first quantity of interest is the average effect of candidate gender on the probability that a given attribute is unlocked:
+To emphasize that the key behavioral object is \emph{information demand}, define the \emph{marginal information demand} (MID) for attribute $m$ as
 \[
-\tau_k
-=
-\mathbb{E}\!\left[U_{ijkt}(1,0) - U_{ijkt}(0,0)\right].
+MID_m(z,s) = \Pr(U_{ijtm}=1 \mid Z_{ijt}=z, S_{it}=s).
 \]
-Here, $\tau_k$ captures whether female candidates generate greater demand for information on attribute $k$ in the absence of time pressure. If the theory of asymmetric scrutiny is correct, we expect $\tau_k > 0$ for at least some attributes.
+MID is therefore the probability that attribute $m$ is unlocked under profile condition $z$ and task condition $s$.
+
+The first quantity of interest is the effect of the profile-level condition on the probability that a given attribute is unlocked:
+\[
+\tau_m = MID_m(1,0) - MID_m(0,0).
+\]
+In the present application, $\tau_m$ captures whether female candidates generate greater demand for information on attribute $m$ in the absence of time pressure. If the theory of asymmetric scrutiny is correct, we expect $\tau_m > 0$ for at least some attributes.
 
 A second quantity of interest is the effect of time pressure on information acquisition:
 \[
-\delta_k
-=
-\mathbb{E}\!\left[U_{ijkt}(0,1) - U_{ijkt}(0,0)\right].
+\delta_m = MID_m(0,1) - MID_m(0,0).
 \]
 This estimand captures whether respondents become less likely to acquire costly information when decision time is made more salient.
 
 The key interaction quantity of interest is:
 \[
-\gamma_k
-=
-\mathbb{E}\!\left[\bigl(U_{ijkt}(1,1)-U_{ijkt}(0,1)\bigr)
+\gamma_m =
+\bigl[MID_m(1,1)-MID_m(0,1)\bigr]
 -
-\bigl(U_{ijkt}(1,0)-U_{ijkt}(0,0)\bigr)\right].
+\bigl[MID_m(1,0)-MID_m(0,0)\bigr].
 \]
-This difference-in-differences estimand captures whether the gender gap in information demand changes under time pressure. It is the most direct formalization of the claim that female candidates may face a higher burden of verification, especially when respondents are forced to make decisions under scarcity.
+This difference-in-differences estimand captures whether the gap in information demand associated with the profile-level condition changes under time pressure. In the present application, it is the most direct formalization of the claim that female candidates may face a higher burden of verification, especially when respondents are forced to make decisions under scarcity.
 
 Because the design also records the total amount spent on information, a second family of quantities of interest concerns search intensity. Let
 \[
-C_k > 0
+C_m > 0
 \]
-denote the point cost of unlocking attribute $k$. Define total information expenditure for respondent $i$ in task $t$ as
+denote the point cost of unlocking attribute $m$. Define total information expenditure for respondent $i$ in task $t$ as
 \[
 E_{it}
 =
-\sum_{j \in \{L,R\}} \sum_k C_k U_{ijkt}.
+\sum_{j \in \{L,R\}} \sum_m C_m U_{ijtm}.
 \]
-Then the average causal effect of candidate gender on total search expenditure can be written as
+Then the average causal effect of the profile-level condition on total search expenditure can be written as
 \[
 \tau_E
 =
@@ -154,7 +249,7 @@ indicate whether respondent $i$ correctly identifies the candidate with the high
 =
 \mathbb{E}\!\left[Y_{it}(1,0) - Y_{it}(0,0)\right],
 \]
-to study whether the presence of a female candidate affects prediction accuracy, and
+to study whether the profile-level condition affects prediction accuracy, and
 \[
 \gamma_Y
 =
@@ -162,7 +257,7 @@ to study whether the presence of a female candidate affects prediction accuracy,
 -
 \bigl(Y_{it}(1,0)-Y_{it}(0,0)\bigr)\right],
 \]
-to assess whether time pressure differentially changes accuracy when female candidates are present.
+to assess whether time pressure differentially changes accuracy across profile conditions.
 
 \subsection*{Number of tasks}
 
@@ -174,11 +269,11 @@ choice tasks per respondent.
 
 This choice is methodologically conservative. It sits comfortably within the logic of Bansak et al. (2018), who find little evidence of substantial deterioration in conjoint responses even with much larger numbers of tasks. Using eight tasks therefore provides a reasonable compromise between statistical power and respondent burden, especially since the present design is cognitively more demanding than a standard fully revealed conjoint because respondents must actively manage costly information acquisition.
 
-\subsection*{Back-of-the-envelope sample size calculation}
+\subsection*{Sample size}
 
-The main power calculation should be anchored in the candidate-level information acquisition outcome $U_{ijkt}$, since the proposal's central theoretical claim concerns differential \emph{information demand}. Suppose the target effect size is a five-percentage-point difference in the probability of unlocking a given attribute, for example:
+The main power calculation should be anchored in the candidate-level information acquisition outcome $U_{ijtm}$, since the proposal's central theoretical claim concerns differential information demand. Suppose the target effect size is a five-percentage-point difference in the probability of unlocking a given attribute in untimed tasks, for example:
 \[
-\Pr(U_{ijkt}=1 \mid G_{ijt}=1) - \Pr(U_{ijkt}=1 \mid G_{ijt}=0) = 0.05.
+MID_m(1,0) - MID_m(0,0) = 0.05.
 \]
 
 Using a conventional two-sided test with $\alpha=0.05$ and power $0.80$, and taking a baseline unlock probability of roughly $0.30$, the required independent sample size is approximately
@@ -206,7 +301,7 @@ The effective number of profile exposures per arm is therefore approximately
 \[
 n_{\text{eff, arm}} \approx \frac{8N}{DE},
 \]
-because, under balanced randomization, each respondent contributes on average about $T=8$ profile exposures to each gender arm.
+because, under balanced randomization, each respondent contributes on average about $T=8$ profile exposures to each arm of the profile-level condition.
 
 Setting
 \[
@@ -222,7 +317,7 @@ This gives a required respondent sample approximately in the range:
 N \in [430, 688].
 \]
 
-That range is appropriate for the \emph{main effect} of candidate gender on attribute unlocking. Because the project is also interested in interactions with time pressure and in heterogeneity across multiple unlockable attributes, a more conservative target is warranted. I therefore recommend a target sample of:
+That range is appropriate for the \emph{main effect} of the profile-level condition on attribute unlocking. Because the project is also interested in interactions with time pressure and in heterogeneity across multiple unlockable attributes, a more conservative target is warranted. I therefore recommend a target sample of:
 \[
 N = 1{,}000
 \]
@@ -236,45 +331,81 @@ This design would generate:
 \[
 2NT = 16{,}000
 \]
-candidate-profile exposures in total. Under balanced assignment, this yields substantial information for estimating both main effects and gender-by-time-pressure interactions while remaining comfortably within the range of task counts that Bansak et al. (2018) suggest are unlikely to create severe satisficing problems.
-
+candidate-profile exposures in total. Under balanced assignment, this yields substantial information for estimating both main effects and interactions with time pressure while remaining comfortably within the range of task counts that Bansak et al. (2018) suggest are unlikely to create severe satisficing problems.
 
 \subsection*{Relation to AMCEs, Marginal Means, and Framing Designs}
 
-It is useful to distinguish clearly between the quantities of interest that dominate the standard conjoint framework and the quantities of interest targeted by the present design. In the Hainmueller, Hopkins, and Yamamoto framework, the principal causal estimand is the average marginal component effect (AMCE), which summarizes the effect of changing one attribute level on the probability that a profile is chosen, averaging over the joint distribution of the remaining attributes. In their notation, if $Y_{ijk}(t)$ denotes the potential choice outcome for respondent $i$ in task $k$ when profile vector $t$ is shown, and if $T_{ijk\ell}$ denotes the $\ell$th attribute of the profile, then the AMCE for attribute $\ell$ compares two levels, say $x_1$ and $x_0$, averaging over all possible realizations of the remaining profile components. Substantively, the AMCE answers the question: by how much does support for a profile change when one attribute is shifted from $x_0$ to $x_1$, holding fixed the fully revealed conjoint structure and averaging over the distribution of the other attributes? 
+It is useful to distinguish clearly between the quantities of interest that dominate the standard conjoint framework and the quantities of interest targeted by the present design. In the \textcite{Hainmueller2014} framework, the principal causal estimand is the average marginal component effect (AMCE), which summarizes the effect of changing one attribute level on the probability that a profile is chosen, averaging over the joint distribution of the remaining attributes. In their notation, if $Y_{ijt}(x)$ denotes the potential choice outcome for respondent $i$ in task $t$ when profile vector $x$ is shown, and if $X_{ijt\ell}$ denotes the $\ell$th attribute of the profile, then the AMCE for attribute $\ell$ compares two levels, say $x_1$ and $x_0$, averaging over all possible realizations of the remaining profile components. Substantively, the AMCE answers the question: by how much does support for a profile change when one attribute is shifted from $x_0$ to $x_1$, holding fixed the fully revealed conjoint structure and averaging over the distribution of the other attributes?
 
-Leeper, Hobolt, and Tilley show that AMCEs are closely tied to marginal means. In a fully randomized forced-choice conjoint, a marginal mean for feature level $x$ can be written as
+\textcite{Leeper2020a} show that AMCEs are closely tied to marginal means. In a fully randomized forced-choice conjoint, a marginal mean for feature level $x$ can be written as
 \[
-MM_{\ell}(x) = \Pr(Y_{ijk}=1 \mid T_{ijk\ell}=x),
+MM_{\ell}(x) = \Pr(Y_{ijt}=1 \mid X_{ijt\ell}=x),
 \]
 where the probability is taken over the randomized distribution of all remaining profile attributes. In fully randomized designs, the AMCE is simply the difference between two such marginal means:
 \[
 AMCE_{\ell}(x_1,x_0) = MM_{\ell}(x_1) - MM_{\ell}(x_0).
 \]
-Thus, AMCEs summarize relative differences against a reference level, whereas marginal means summarize the absolute favorability of profiles carrying a given feature level. In both cases, however, the estimands are defined over \emph{fully revealed} profile content and linked to the respondent's final choice. 
+Thus, AMCEs summarize relative differences against a reference level, whereas marginal means summarize the absolute favorability of profiles carrying a given feature level. In both cases, however, the estimands are defined over \emph{fully revealed} profile content and linked to the respondent's final choice.
 
-The present design differs because the central behavioral question arises \emph{before} the final choice is made. Respondents do not receive the full profile ex ante. Instead, they first observe the candidate's photograph and then decide whether to unlock party, age, and occupation under a binding budget and, in some tasks, under time pressure. As a result, the primary quantities of interest are not initially AMCEs of fully displayed attributes on the final choice outcome $Y_{ikt}$, but quantities governing \emph{information acquisition itself}. Let
+The present design differs because the central behavioral question arises \emph{before} the final choice is made. Respondents do not receive the full profile ex ante. Instead, they first observe the candidate's photograph and then decide whether to unlock party, age, and occupation under a binding budget and, in some tasks, under time pressure. As a result, the primary quantities of interest are not initially AMCEs of fully displayed attributes on the final choice outcome $Y_{it}$, but quantities governing \emph{information acquisition itself}. Let
 \[
-U_{ijktm} \in \{0,1\}
+U_{ijtm} \in \{0,1\}
 \]
-indicate whether respondent $i$ unlocks attribute $m \in \{\text{party},\text{age},\text{occupation}\}$ for profile $j$ in task $k$. Let $G_{ijk} \in \{0,1\}$ indicate whether the profile is female and let $S_{ik} \in \{0,1\}$ indicate whether task $k$ is timed. Then the main estimands of the present design are quantities such as
+indicate whether respondent $i$ unlocks attribute $m \in \{\text{party},\text{age},\text{occupation}\}$ for profile $j$ in task $t$. Let $Z_{ijt}$ denote the profile-level condition of substantive interest and let $S_{it} \in \{0,1\}$ indicate whether task $t$ is timed.
+
+To emphasize that the key behavioral object is \emph{information demand}, it is useful to define the \emph{marginal information demand} (MID) for attribute $m$ as
 \[
-\tau_m = \mathbb{E}[U_{ijktm}(1,0)-U_{ijktm}(0,0)],
+MID_m(z,s) = \Pr(U_{ijtm}=1 \mid Z_{ijt}=z, S_{it}=s),
 \]
-which captures the effect of candidate gender on the probability that attribute $m$ is unlocked, and
+that is, the probability that attribute $m$ is unlocked under profile condition $z$ and task condition $s$. In direct analogy to the way marginal means summarize support levels in standard conjoint analysis, MID summarizes the level of demand for a given piece of information before the final choice is made. The corresponding contrast on the profile-level condition can then be written as
+\[
+\tau_m = MID_m(1,0) - MID_m(0,0),
+\]
+and the time-pressure interaction can be expressed as
 \[
 \gamma_m =
-\mathbb{E}\!\left[
-\bigl(U_{ijktm}(1,1)-U_{ijktm}(0,1)\bigr)
+\bigl[MID_m(1,1)-MID_m(0,1)\bigr]
 -
-\bigl(U_{ijktm}(1,0)-U_{ijktm}(0,0)\bigr)
-\right],
+\bigl[MID_m(1,0)-MID_m(0,0)\bigr].
 \]
-which captures whether time pressure changes the gender gap in information demand.
 
-These estimands do not contradict AMCEs or marginal means. Rather, they operate at a different stage of the decision process. AMCEs and marginal means ask: \emph{once an attribute is part of the revealed profile, how does it shape support?} The quantities of interest in the present design instead ask: \emph{is that attribute acquired at all, under what conditions, and for whom?} In this sense, the current design complements the standard conjoint framework by shifting attention from the causal effects of fully revealed attributes on final choice to the causal structure of selective information acquisition under scarcity. That is precisely the dimension that standard fully revealed conjoint designs are not built to capture. 
+\begin{table}[!htbp]
+    \centering
+    \caption{Benchmarking standard conjoint estimands against the economic conjoint acquisition estimand}
+    \label{tab:estimand_comparison_math}
+	\footnotesize
+    \scalebox{0.8}{
+    \begin{tabular}{p{3.0cm} p{4.4cm} p{5.8cm} p{3.8cm}}
+        \hline
+        \textbf{Estimand} & \textbf{Notation} & \textbf{What it measures} & \textbf{Stage of decision process} \\
+        \hline
 
-This distinction also clarifies the limits of standard AMCE and marginal-mean analyses for the present application. If one were to compute an AMCE of party, age, or occupation on final choice in the usual way, one would be analyzing the consequences of those attributes \emph{conditional on exposure}. But in the present design, exposure is itself endogenous: respondents must choose whether to incur a cost in order to observe the attribute. For that reason, standard AMCEs and marginal means cannot by themselves recover the key behavioral object of interest, namely the process by which some pieces of information become visible while others remain unseen. At most, they can describe how information matters \emph{after it has entered the respondent's choice set}. The present design is therefore best understood as extending, rather than replacing, the conjoint framework: it preserves the multidimensional profile-comparison logic of conjoint analysis while introducing a prior stage in which information acquisition itself becomes a theoretically meaningful outcome.
+        {\bf AMCE} \parencite{Hainmueller2014} &
+        $AMCE_{\ell}(x_1,x_0) = MM_{\ell}(x_1) - MM_{\ell}(x_0)$ &
+        Average causal effect of changing attribute $\ell$ from $x_0$ to $x_1$ on profile choice, averaging over the remaining fully revealed attributes &
+        Final choice given full exposure \\
+
+        {\bf Marginal Mean} \parencite{Leeper2020a} &
+        $MM_{\ell}(x) = \Pr(Y=1 \mid X_{\ell}=x)$ &
+        Probability that a fully revealed profile with attribute level $x$ is chosen &
+        Final choice given full exposure \\
+
+        {\bf Marginal Information Demand (MID)} &
+        $MID_m(z,s) = \Pr(U_{ijtm}=1 \mid Z_{ijt}=z, S_{it}=s)$ &
+        Probability that attribute $m$ is unlocked under profile condition $z$ and task condition $s$ &
+        Information acquisition before final choice \\
+
+      	\hline
+    \end{tabular}
+    }
+
+    \vspace{0.5em}
+    \caption*{\textit{Notes:} $Y$ denotes profile choice, $X_{\ell}$ a fully revealed attribute, and $U_{ijtm}$ the decision to unlock attribute $m$ for profile $j$ shown to respondent $i$ in task $t$. AMCEs and marginal means are standard estimands from fully revealed conjoint analysis. MID is the analogous level quantity for the acquisition stage of the present design.}
+\end{table}
+
+These estimands do not contradict AMCEs or marginal means. Rather, they operate at a different stage of the decision process (see \autoref{tab:estimand_comparison_math}). AMCEs and marginal means ask: \emph{once an attribute is part of the revealed profile, how does it shape support?} MID instead asks: \emph{is that attribute acquired at all, under what conditions, and for whom?} In this sense, the current design \emph{complements} the standard conjoint framework by shifting attention from the causal effects of fully revealed attributes on final choice to the causal structure of selective information acquisition under scarcity. That is precisely the dimension that standard fully revealed conjoint designs are not built to capture.
+
+This distinction also clarifies the limits of standard AMCE and marginal-mean analyses for the present application. If one were to compute an AMCE of party, age, or occupation on final choice in the usual way, one would be analyzing the consequences of those attributes \emph{conditional on exposure}. But in the present design, exposure is itself endogenous: respondents must choose whether to incur a cost in order to observe the attribute. For that reason, standard AMCEs and marginal means cannot by themselves recover the key behavioral object of interest, namely the process by which some pieces of information become visible while others remain unseen. At most, they can describe how information matters \emph{after it has entered the respondent's choice set}. The present design is therefore best understood as extending, rather than replacing, the conjoint framework: it preserves the multidimensional profile-comparison logic of conjoint analysis while introducing a prior stage in which information acquisition itself becomes a theoretically meaningful outcome. In that extended framework, MID plays a role analogous to the marginal mean, but for the acquisition stage rather than the choice stage.
 
 It is equally important to clarify that this is not a standard framing experiment. In a conventional framing design, respondents are typically assigned to one of a small number of externally imposed messages or interpretive presentations, and the central estimand compares outcomes across those frame assignments. Formally, if $F_i \in \{0,1\}$ indexes exposure to two alternative frames and $Y_i(F_i)$ denotes the corresponding potential outcome, the canonical framing estimand is
 \[
@@ -288,27 +419,13 @@ F_i \longrightarrow Y_i,
 \]
 whereas a standard fully revealed conjoint takes the form
 \[
-T_{ijk} \longrightarrow Y_{ijk},
+X_{ijt} \longrightarrow Y_{ijt},
 \]
-with $T_{ijk}$ denoting the vector of randomized profile attributes. The present design instead has the structure
+with $X_{ijt}$ denoting the vector of randomized profile attributes. The present design instead has the structure
 \[
-\text{image}_{ijk} \longrightarrow U_{ijktm} \longrightarrow Y_{ik},
+\text{image}_{ijt} \longrightarrow U_{ijtm} \longrightarrow Y_{it},
 \]
-possibly moderated by task-level time pressure $S_{ik}$. The crucial difference is that the information set entering the final judgment is not wholly assigned by the researcher at the moment of treatment delivery. It is jointly produced by the experimental environment and the respondent's own acquisition decisions. For that reason, the design is not well described as a framing experiment, even though it manipulates the informational environment. Its distinctive feature is not exogenously imposed interpretation, but endogenous, costly, and sequential revelation of profile content.
-
-A useful way to summarize the comparison is therefore as follows. In the standard conjoint framework,
-\[
-T_{ijk} \longrightarrow Y_{ijk},
-\]
-and the inferential task is to estimate how the randomized components of a fully revealed profile affect the final choice. In a framing design,
-\[
-F_i \longrightarrow Y_i,
-\]
-and the inferential task is to estimate how alternative presentations of an object affect judgment. In the present framework, however,
-\[
-\text{image}_{ijk} \longrightarrow U_{ijktm} \longrightarrow Y_{ik},
-\]
-with the intermediate stage $U_{ijktm}$ itself treated as a substantive outcome. The methodological contribution of the present design lies precisely in opening this intermediate stage to direct analysis. Standard AMCEs and marginal means remain useful once attributes are observed, and framing logic remains relevant for thinking about informational environments, but neither framework by itself captures a design in which respondents must first decide whether additional information is worth acquiring.
+possibly moderated by task-level time pressure $S_{it}$. The crucial difference is that the information set entering the final judgment is not wholly assigned by the researcher at the moment of treatment delivery. It is jointly produced by the experimental environment and the respondent's own acquisition decisions. For that reason, the design is not well described as a framing experiment, even though it manipulates the informational environment. Its distinctive feature is not exogenously imposed interpretation, but endogenous, costly, and sequential revelation of profile content.
 
 
 \newpage
