@@ -64,10 +64,11 @@
 
 
 %\title{Losers, Delegation, and the Ideological Valence of Expertise: Evidence from Finland}
-\vspace{-1cm}\title{First Impressions under Scarcity: An Economic Conjoint Experiment for Studying Electoral Judgment} % Article title
+\vspace{-1cm}\title{\textbf{\input{title.txt}\unskip}} % Article title
+
 
 % --- Authors (emails on one line)
-\author[1]{\textsc{Hector Bahamonde}}
+\author[1,2]{\textsc{Hector Bahamonde}}
 %\author[2]{\textsc{Andrea Canales}}
 %\author[3]{\textsc{Inga Saikkonen}}
 %\author[4]{\textsc{Mart Trasberg}}
@@ -84,6 +85,8 @@
 
 
 \affil[1]{Senior Researcher, University of Turku, Finland}
+\affil[2]{Project Researcher, Social Science Research Institute, \AA bo Akademi University, Finland}
+
 %\affil[2]{Assistant Professor, O'Higgins University, Chile}
 %\affil[3]{Senior University Lecturer, {\AA}bo Akademi University, Finland}
 %\affil[4]{Assistant Professor of Political Science, School of Social Sciences and Government, Tecnol\'ogico de Monterrey, Mexico}
@@ -94,21 +97,21 @@
 % \href{https://sites.google.com/view/marttrasberg/home}{\texttt{sites.google.com/view/marttrasberg/home}}
 
 
-\newcommand{\dpartial}[2]{\frac{\partial #1}{\partial #2}}
-
-
 \date{\today}
 
 
 \begin{document}
 
 \maketitle
+\thispagestyle{empty}
 
 \begin{abstract}
 How do voters decide whether first impressions are sufficient, or whether additional information is worth acquiring before making a political judgment? Research in political psychology shows that facial appearance and other low-information cues shape candidate evaluations quickly and powerfully, while the conjoint literature typically assumes that all profile attributes are fully revealed from the outset. This paper introduces a new method---an economic conjoint experiment---that bridges these traditions by making information acquisition endogenous and costly. Respondents first encounter real candidate photographs in a low-information setting and then decide whether to spend points to unlock additional profile attributes before making a judgment. In some tasks, time pressure is randomized, allowing the design to identify how costly deliberation changes political evaluation. The method yields behavioral quantities of interest that standard fully revealed conjoint designs are not built to capture. In particular, I introduce \emph{marginal information demand} (MID), an estimand that summarizes the probability that a given piece of information is acquired under specified profile and task conditions. Substantively, the paper applies this design to the study of first impressions and gendered scrutiny in electoral judgment, arguing that female candidates may elicit greater information demand because they are evaluated under a higher burden of verification.
 \end{abstract}
 
-\newpage
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
 
 \section*{Introduction}
 
@@ -122,7 +125,7 @@ This paper argues that electoral judgment is not only a matter of which candidat
 
 Our core theoretical claim is that first impressions generate different levels of subjective confidence, and that this confidence governs the demand for additional information. When respondents believe that a candidate's face already provides a sufficiently clear signal, they may rationally decline to spend scarce resources on further investigation. Low search may therefore reflect efficient economizing if first impressions are informative and may also reflect overconfidence if respondents rely too heavily on facial heuristics. The gendered implication is especially important: if female candidates are judged under stricter priors \parencite{Ditonto2018,Krook2020}, respondents may be less willing to trust first impressions alone and more likely to invest in additional search. The result is a stronger demand for information not because women inherently provide less information, but because initial impressions of female candidates may activate motivated reasoning \parencite{Kunda1990}, inducing respondents to seek and evaluate additional evidence under a higher burden of verification.
 
-To study this process, we introduce a novel \emph{economic conjoint experiment} implemented in oTree (see prototype \href{https://econ-conjoint-project.onrender.com/}{here}). The design combines the multidimensional choice structure of conjoint analysis \parencite{Hainmueller2014} with an explicitly economic search environment in which information is scarce, costly, and \emph{endogenously} acquired. Rather than presenting respondents with a fully revealed bundle of candidate attributes, we allow them to uncover information selectively by spending points from a limited budget. This transforms the conjoint from a \emph{passive} stated-preference task into a sequential decision problem in which \emph{search behavior} itself becomes theoretically meaningful. Following \textcite{Antonakis2009a}, respondents first encounter real candidate photographs in a low-information setting, form an initial judgment, but then decide whether to pay to reveal additional profile attributes before updating their choice (see \autoref{fig:econ_conjoint_prototype}). The experiment therefore identifies not only which candidate features affect electoral judgments, but also which features respondents consider worth learning about, under what conditions, and for whom. To capture this acquisition stage directly, we introduce a new estimand, which we call \emph{marginal information demand} (MID), for attribute $m$:
+To study this process, we introduce a novel \emph{economic conjoint experiment} implemented in oTree ({\color{blue}see prototype \href{https://econ-conjoint-project.onrender.com/}{here}}). The design combines the multidimensional choice structure of conjoint analysis \parencite{Hainmueller2014} with an explicitly economic search environment in which information is scarce, costly, and \emph{endogenously} acquired. Rather than presenting respondents with a fully revealed bundle of candidate attributes, we allow them to uncover information selectively by spending points from a limited budget. This transforms the conjoint from a \emph{passive} stated-preference task into a sequential decision problem in which \emph{search behavior} itself becomes theoretically meaningful. Following \textcite{Antonakis2009a}, respondents first encounter real candidate photographs in a low-information setting, form an initial judgment, but then decide whether to pay to reveal additional profile attributes before updating their choice (see \autoref{fig:econ_conjoint_prototype}). The experiment therefore identifies not only which candidate features affect electoral judgments, but also which features respondents consider worth learning about, under what conditions, and for whom. To capture this acquisition stage directly, we introduce a new estimand, which we call \emph{marginal information demand} (MID), for attribute $m$:
 
 \[
 MID_m(z,s) = \Pr(U_{ijtm}=1 \mid Z_{ijt}=z, S_{it}=s),
