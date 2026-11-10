@@ -1,0 +1,12 @@
+{
+  "title": "Who Checks the Checks? An Economic Conjoint Experiment on Scrutiny of Democratic Conduct under Institutional Crisis",
+  "upload_type": "publication",
+  "publication_type": "workingpaper",
+  "description": "Working paper introducing the economic conjoint, an incentivised experiment in which candidate attributes are hidden and each reveal is priced and paid from earnings that depend on voting correctly. It defines marginal information demand (MID) and applies the design to test whether institutional crisis shifts scrutiny away from democratic conduct in Finland and Chile. Design, estimands, estimation and power; results pending data collection.",
+  "creators": [
+    {"name": "Bahamonde, Hector", "affiliation": "University of Turku"}
+  ],
+  "keywords": ["democratic backsliding", "information search", "conjoint analysis", "costly information", "institutional crisis", "incentivised experiments"],
+  "license": "MIT",
+  "language": "eng"
+}
