@@ -2,6 +2,8 @@
 
 Hector Bahamonde (University of Turku)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24104907.svg)](https://doi.org/10.5281/zenodo.24104907)
+
 This working paper introduces the *economic conjoint*. In this incentivised experiment, candidate attributes are hidden, and each reveal is priced and paid from earnings that depend on voting correctly. The paper defines *marginal information demand* (MID). It applies the design to test whether an institutional crisis shifts citizens' scrutiny away from democratic conduct and towards results, in Finland and Chile.
 
 - Paper: [`Paper/Econ_Conj.pdf`](Paper/Econ_Conj.pdf) (source: `Paper/Econ_Conj.tex`, bibliography: `Paper/Econ_Conj.bib`)
